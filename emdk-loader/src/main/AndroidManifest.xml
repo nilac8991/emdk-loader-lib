@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zebra.nilac.emdkloader">
+
+    <!-- EMDK Permission -->
+    <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
+    <queries>
+        <package android:name="com.symbol.emdk.emdkservice" />
+    </queries>
+
+    <application>
+        <!-- EMDK Lib -->
+        <uses-library
+            android:name="com.symbol.emdk"
+            android:required="true" />
+    </application>
+
+</manifest>
