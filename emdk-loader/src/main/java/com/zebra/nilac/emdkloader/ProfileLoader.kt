@@ -53,10 +53,11 @@ class ProfileLoader {
                 .also {
                     Log.d(TAG, "XML: " + it.statusString)
 
-                    if (it.statusCode == EMDKResults.STATUS_CODE.CHECK_XML) {
+                    if (it.statusCode == EMDKResults.STATUS_CODE.CHECK_XML || it.statusCode == EMDKResults.STATUS_CODE.SUCCESS) {
                         mProfileLoaderResultCallback?.onProfileLoaded()
-                    } else if (it.statusCode == EMDKResults.STATUS_CODE.FAILURE || it.statusCode == EMDKResults.STATUS_CODE.SUCCESS) {
+                    } else {
                         mProfileLoaderResultCallback?.onProfileLoadFailed(it.statusString)
+                        mProfileLoaderResultCallback?.onProfileLoadFailed(it)
                     }
                 }
         }
