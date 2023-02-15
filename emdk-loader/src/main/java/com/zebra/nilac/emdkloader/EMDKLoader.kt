@@ -25,6 +25,12 @@ class EMDKLoader {
         Log.i(TAG, "Initialising EMDK Manager asynchronously")
         mEMDKManagerInitCallback = emdkManagerInitCallBacks
 
+        if (isManagerInit()) {
+            Log.i(TAG, "EMDK Manager was already initialised, no need to re-init it..")
+            mEMDKManagerInitCallback?.onSuccess()
+            return
+        }
+
         initScope.launch(Dispatchers.IO) {
             EMDKManager.getEMDKManager(context, object : EMDKManager.EMDKListener {
                 override fun onOpened(manager: EMDKManager?) {
