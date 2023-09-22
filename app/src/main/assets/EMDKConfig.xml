@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><!--This is an auto generated document. Changes to this document may cause incorrect behavior.-->
+<wap-provisioningdoc>
+    <characteristic type="ProfileInfo">
+        <parm name="created_wizard_version" value="11.0.1" />
+    </characteristic>
+    <characteristic type="Profile">
+        <parm name="ProfileName" value="BrightnessCheck" />
+        <parm name="ModifiedDate" value="2023-07-20 12:28:43" />
+        <parm name="TargetSystemVersion" value="10.5" />
+
+        <characteristic type="DisplayMgr" version="10.5">
+            <parm name="emdk_name" value="BrightnessControl" />
+            <parm name="Adaptivebrightness" value="2" />
+            <parm name="Brightnesslevel" value="30" />
+
+        </characteristic>
+    </characteristic>
+</wap-provisioningdoc>
