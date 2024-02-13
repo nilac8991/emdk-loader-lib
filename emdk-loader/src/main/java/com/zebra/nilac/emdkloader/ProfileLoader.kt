@@ -8,6 +8,7 @@ import com.symbol.emdk.ProfileManager
 import com.zebra.nilac.emdkloader.interfaces.ProfileLoaderResultCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ProfileLoader {
@@ -87,6 +88,24 @@ class ProfileLoader {
         profile: String?,
         callBacks: ProfileLoaderResultCallback
     ) {
+        processProfile(profileName, profile, null, callBacks)
+    }
+
+    fun processProfileWithDelay(
+        profileName: String,
+        profile: String?,
+        delay: Long?,
+        callBacks: ProfileLoaderResultCallback
+    ) {
+        processProfile(profileName, profile, delay, callBacks)
+    }
+
+    private fun processProfile(
+        profileName: String,
+        profile: String?,
+        delay: Long?,
+        callBacks: ProfileLoaderResultCallback
+    ) {
         this.mProfileLoaderResultCallback = callBacks
         mEmdkManager = mEmdkLoaderInstance.getManager()
 
@@ -106,14 +125,19 @@ class ProfileLoader {
             return
         }
 
-        Log.d(TAG, "Processing EMDK profile")
         val params = arrayOfNulls<String>(1)
-
         if (!profile.isNullOrEmpty()) {
             params[0] = profile
         }
 
         profileProcessScope.launch(Dispatchers.IO) {
+            if (delay != null && delay > 0) {
+                Log.d(TAG, "Waiting to process profile only after the delay timeout")
+                delay(delay)
+            }
+
+            Log.d(TAG, "Processing MX profile")
+
             profileManager.processProfile(profileName, ProfileManager.PROFILE_FLAG.SET, params)
                 .also {
                     Log.d(TAG, "XML: " + it.statusString)
