@@ -4,13 +4,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         minSdk 21
-        targetSdk 32
-        versionCode 5
-        versionName "1.0.5"
+        targetSdk 33
     }
 
     buildTypes {
@@ -36,12 +34,8 @@ dependencies {
     apply plugin: 'kotlin-kapt'
 
     implementation 'androidx.core:core-ktx:1.7.0'
-
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
-
     // EMDK
-    implementation 'com.symbol:emdk:9.1.1'
+    implementation 'com.symbol:emdk:11.0.134'
 }
