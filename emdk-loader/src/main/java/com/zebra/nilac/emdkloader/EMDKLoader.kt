@@ -4,11 +4,10 @@ import android.content.Context
 import android.util.Log
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
-import com.symbol.emdk.EMDKResults.STATUS_CODE
-import com.symbol.emdk.ProfileManager
-import com.symbol.emdk.ProfileManager.PROFILE_FLAG
 import com.zebra.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class EMDKLoader {
 
@@ -64,6 +63,7 @@ class EMDKLoader {
     fun release() {
         Log.w(TAG, "About to release the EMDK Manager")
         mEmdkManager?.release()
+        mEmdkManager = null
     }
 
     companion object {
