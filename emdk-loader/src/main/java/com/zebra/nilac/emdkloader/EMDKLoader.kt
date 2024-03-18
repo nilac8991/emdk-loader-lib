@@ -22,6 +22,7 @@ class EMDKLoader {
 
     fun initEMDKManager(context: Context, emdkManagerInitCallBacks: EMDKManagerInitCallBack?) {
         Log.i(TAG, "Initialising EMDK Manager asynchronously")
+        val appContext = context.applicationContext
         mEMDKManagerInitCallback = emdkManagerInitCallBacks
 
         if (isManagerInit()) {
@@ -31,7 +32,7 @@ class EMDKLoader {
         }
 
         initScope.launch(Dispatchers.IO) {
-            EMDKManager.getEMDKManager(context, object : EMDKManager.EMDKListener {
+            EMDKManager.getEMDKManager(appContext, object : EMDKManager.EMDKListener {
                 override fun onOpened(manager: EMDKManager?) {
                     Log.i(TAG, "EMDK opened with manager: $manager")
                     mEmdkManager = manager
