@@ -4,13 +4,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         minSdk 21
-        targetSdk 32
-        versionCode 8
-        versionName "1.0.8"
+        targetSdk 34
     }
 
     buildTypes {
@@ -28,6 +26,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace 'com.zebra.nilac.emdkloader'
 }
 
 dependencies {
@@ -35,8 +34,8 @@ dependencies {
     apply plugin: 'kotlin-android'
     apply plugin: 'kotlin-kapt'
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
 
     // EMDK
     implementation 'com.symbol:emdk:11.0.134'
