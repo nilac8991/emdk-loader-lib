@@ -9,6 +9,9 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 34
+
+        versionCode 110
+        versionName "1.1.0"
     }
 
     buildTypes {
@@ -26,6 +29,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
     namespace 'com.zebra.nilac.emdkloader'
 }
 
