@@ -35,10 +35,6 @@ android {
 
 dependencies {
 
-    apply plugin: 'kotlin-android'
-    apply plugin: 'kotlin-kapt'
-
-    implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
 
     // EMDK is exposed transitively so you don't need to redeclare it in your project!
