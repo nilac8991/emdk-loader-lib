@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.math.sign
 
 object SignatureUtils {
 
@@ -27,17 +26,31 @@ object SignatureUtils {
     }
 
     private fun getSignatures(context: Context): List<Signature> {
-        return if (Build.VERSION.SDK_INT < 28) {
-            context.packageManager.getPackageInfo(
-                context.packageName,
-                PackageManager.GET_SIGNATURES
-            ).signatures.toList()
-        } else {
-            val signingInfo = context.packageManager.getPackageInfo(
-                context.packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
-            ).signingInfo
-            signingInfo.apkContentsSigners.toList()
+        return try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.GET_SIGNATURES
+                ).signatures?.toList().orEmpty()
+            } else {
+                val signingInfo = context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.GET_SIGNING_CERTIFICATES
+                ).signingInfo ?: return emptyList()
+
+                // With a rotated signing key apkContentsSigners holds the current signer(s);
+                // otherwise the full history is the authoritative source.
+                val signatures = if (signingInfo.hasMultipleSigners()) {
+                    signingInfo.apkContentsSigners
+                } else {
+                    signingInfo.signingCertificateHistory
+                }
+                signatures?.toList().orEmpty()
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e(TAG, "Unable to retrieve package signatures", e)
+            emptyList()
         }
     }
 
