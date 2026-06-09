@@ -5,8 +5,9 @@ import android.util.Log
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
 import com.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class EMDKLoader {
@@ -14,7 +15,7 @@ class EMDKLoader {
     private var mEmdkManager: EMDKManager? = null
     private var mEMDKManagerInitCallback: EMDKManagerInitCallBack? = null
 
-    private var initScope = MainScope()
+    private val initScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun initEMDKManager(context: Context) {
         initEMDKManager(context, null)
@@ -43,7 +44,7 @@ class EMDKLoader {
                     Log.w(TAG, "EMDK Manager was closed")
                 }
             }).also {
-                if (it.statusCode !== EMDKResults.STATUS_CODE.SUCCESS) {
+                if (it.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
                     Log.e(TAG, "Failed to init: " + it.statusCode)
 
                     mEMDKManagerInitCallback?.onFailed(it.statusString)
