@@ -1,154 +1,127 @@
 package com.nilac.emdkloader
 
 import android.util.Log
+import com.nilac.emdkloader.interfaces.ProfileLoaderResultCallback
+import com.nilac.emdkloader.models.ProfileError
+import com.nilac.emdkloader.utils.ProfileResponseParser
 import com.symbol.emdk.EMDKBase
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
 import com.symbol.emdk.ProfileManager
-import com.nilac.emdkloader.interfaces.ProfileLoaderResultCallback
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ProfileLoader {
 
-    private var mProfileLoaderResultCallback: ProfileLoaderResultCallback? = null
-    private var mEmdkLoaderInstance: EMDKLoader = EMDKLoader.getInstance()
-
-    private var profileProcessScope = MainScope()
-
-    private var mEmdkManager: EMDKManager? = null
+    private val mEmdkLoaderInstance: EMDKLoader = EMDKLoader.getInstance()
+    private val processScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun processProfileNow(
         profileName: String,
         profile: String?,
         callBacks: ProfileLoaderResultCallback
-    ) {
-        this.mProfileLoaderResultCallback = callBacks
-        mEmdkManager = mEmdkLoaderInstance.getManager()
-
-        if (mEmdkManager == null) {
-            Log.e(TAG, "Unable to process profile, EMDK Manager was not initialised!")
-            mProfileLoaderResultCallback?.onProfileLoadFailed("EMDK not initialised!")
-            return
-        }
-
-        Log.i(TAG, "Initialising ProfileManager asynchronously...")
-        mEmdkManager?.getInstanceAsync(
-            EMDKManager.FEATURE_TYPE.PROFILE,
-            object : EMDKManager.StatusListener {
-                override fun onStatus(statusData: EMDKManager.StatusData, emdkBase: EMDKBase) {
-                    Log.w(TAG, "Status: ${statusData.result}")
-
-                    if (statusData.result != EMDKResults.STATUS_CODE.SUCCESS && statusData.featureType == EMDKManager.FEATURE_TYPE.PROFILE) {
-                        mProfileLoaderResultCallback?.onProfileLoadFailed("Profile Manager is not available!")
-                        return
-                    }
-
-                    val profileManager =
-                        mEmdkManager?.getInstance(EMDKManager.FEATURE_TYPE.PROFILE) as ProfileManager?
-
-                    if (profileManager == null) {
-                        Log.e(TAG, "Profile Manager is not available!")
-                        mProfileLoaderResultCallback?.onProfileLoadFailed("Profile Manager is not available!")
-                        return
-                    }
-
-                    Log.d(TAG, "Processing EMDK profile")
-                    val params = arrayOfNulls<String>(1)
-
-                    if (!profile.isNullOrEmpty()) {
-                        params[0] = profile
-                    }
-
-                    profileProcessScope.launch(Dispatchers.IO) {
-                        profileManager.processProfile(
-                            profileName,
-                            ProfileManager.PROFILE_FLAG.SET,
-                            params
-                        )
-                            .also {
-                                Log.d(TAG, "XML: " + it.statusString)
-
-                                if (it.statusCode == EMDKResults.STATUS_CODE.CHECK_XML || it.statusCode == EMDKResults.STATUS_CODE.SUCCESS) {
-                                    mProfileLoaderResultCallback?.onProfileLoaded()
-                                } else {
-                                    mProfileLoaderResultCallback?.onProfileLoadFailed(it.statusString)
-                                    mProfileLoaderResultCallback?.onProfileLoadFailed(it)
-                                }
-                            }
-                    }
-                }
-            })
-    }
+    ) = processProfile(profileName, profile, 0L, callBacks)
 
     fun processProfile(
         profileName: String,
         profile: String?,
         callBacks: ProfileLoaderResultCallback
-    ) {
-        processProfile(profileName, profile, null, callBacks)
-    }
+    ) = processProfile(profileName, profile, 0L, callBacks)
 
     fun processProfileWithDelay(
         profileName: String,
         profile: String?,
         delay: Long?,
         callBacks: ProfileLoaderResultCallback
-    ) {
-        processProfile(profileName, profile, delay, callBacks)
-    }
+    ) = processProfile(profileName, profile, delay ?: 0L, callBacks)
 
     private fun processProfile(
         profileName: String,
         profile: String?,
-        delay: Long?,
+        delayMillis: Long,
         callBacks: ProfileLoaderResultCallback
     ) {
-        this.mProfileLoaderResultCallback = callBacks
-        mEmdkManager = mEmdkLoaderInstance.getManager()
-
-        if (mEmdkManager == null) {
+        val manager = mEmdkLoaderInstance.getManager()
+        if (manager == null) {
             Log.e(TAG, "Unable to process profile, EMDK Manager was not initialised!")
-            mProfileLoaderResultCallback?.onProfileLoadFailed("EMDK not initialised!")
+            callBacks.onProfileLoadFailed("EMDK Manager is not initialised")
             return
         }
 
-        Log.i(TAG, "Applying profile...")
-        val profileManager =
-            mEmdkManager?.getInstance(EMDKManager.FEATURE_TYPE.PROFILE) as ProfileManager?
+        Log.i(TAG, "Requesting ProfileManager asynchronously...")
+        manager.getInstanceAsync(
+            EMDKManager.FEATURE_TYPE.PROFILE,
+            object : EMDKManager.StatusListener {
+                override fun onStatus(statusData: EMDKManager.StatusData, emdkBase: EMDKBase) {
+                    if (statusData.featureType != EMDKManager.FEATURE_TYPE.PROFILE) return
 
-        if (profileManager == null) {
-            Log.e(TAG, "Profile Manager is not available!")
-            mProfileLoaderResultCallback?.onProfileLoadFailed("Profile Manager is not available!")
-            return
-        }
+                    Log.d(TAG, "ProfileManager status: ${statusData.result}")
 
+                    if (statusData.result != EMDKResults.STATUS_CODE.SUCCESS) {
+                        Log.e(TAG, "Profile Manager is not available: ${statusData.result}")
+                        callBacks.onProfileLoadFailed("Profile Manager is not available (${statusData.result})")
+                        return
+                    }
+
+                    applyProfile(emdkBase as ProfileManager, profileName, profile, delayMillis, callBacks)
+                }
+            }
+        )
+    }
+
+    private fun applyProfile(
+        profileManager: ProfileManager,
+        profileName: String,
+        profile: String?,
+        delayMillis: Long,
+        callBacks: ProfileLoaderResultCallback
+    ) {
         val params = arrayOfNulls<String>(1)
         if (!profile.isNullOrEmpty()) {
             params[0] = profile
         }
 
-        profileProcessScope.launch(Dispatchers.IO) {
-            if (delay != null && delay > 0) {
-                Log.d(TAG, "Waiting to process profile only after the delay timeout")
-                delay(delay)
+        processScope.launch {
+            if (delayMillis > 0) {
+                Log.d(TAG, "Waiting ${delayMillis}ms before processing profile")
+                delay(delayMillis)
             }
 
-            Log.d(TAG, "Processing MX profile")
+            Log.d(TAG, "Processing MX profile '$profileName'")
+            val results =
+                profileManager.processProfile(profileName, ProfileManager.PROFILE_FLAG.SET, params)
+            handleResults(results, callBacks)
+        }
+    }
 
-            profileManager.processProfile(profileName, ProfileManager.PROFILE_FLAG.SET, params)
-                .also {
-                    Log.d(TAG, "XML: " + it.statusString)
+    private fun handleResults(results: EMDKResults, callBacks: ProfileLoaderResultCallback) {
+        when (results.statusCode) {
+            EMDKResults.STATUS_CODE.SUCCESS -> {
+                Log.i(TAG, "Profile applied successfully")
+                callBacks.onProfileLoaded()
+            }
 
-                    if (it.statusCode == EMDKResults.STATUS_CODE.CHECK_XML || it.statusCode == EMDKResults.STATUS_CODE.SUCCESS) {
-                        mProfileLoaderResultCallback?.onProfileLoaded()
-                    } else {
-                        mProfileLoaderResultCallback?.onProfileLoadFailed(it.statusString)
-                        mProfileLoaderResultCallback?.onProfileLoadFailed(it)
-                    }
+            EMDKResults.STATUS_CODE.CHECK_XML -> {
+                val errors = ProfileResponseParser.parseErrors(results.statusString)
+                if (errors.isEmpty()) {
+                    Log.i(TAG, "Profile applied successfully")
+                    callBacks.onProfileLoaded()
+                } else {
+                    val message = ProfileResponseParser.buildFailureMessage(errors)
+                    Log.e(TAG, "Profile applied with ${errors.size} error(s):\n$message")
+                    callBacks.onProfileLoadFailed(message, errors)
                 }
+            }
+
+            else -> {
+                Log.e(TAG, "Profile processing failed: ${results.statusString}")
+                callBacks.onProfileLoadFailed(
+                    results.statusString ?: "Profile processing failed (${results.statusCode})"
+                )
+            }
         }
     }
 
