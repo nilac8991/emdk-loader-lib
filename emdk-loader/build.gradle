@@ -30,7 +30,7 @@ android {
         jvmTarget = '1.8'
     }
 
-    namespace 'com.zebra.nilac.emdkloader'
+    namespace 'com.nilac.emdkloader'
 }
 
 dependencies {

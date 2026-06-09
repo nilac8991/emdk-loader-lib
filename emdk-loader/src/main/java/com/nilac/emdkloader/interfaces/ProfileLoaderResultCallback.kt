@@ -1,4 +1,4 @@
-package com.zebra.nilac.emdkloader.interfaces
+package com.nilac.emdkloader.interfaces
 
 import com.symbol.emdk.EMDKResults
 

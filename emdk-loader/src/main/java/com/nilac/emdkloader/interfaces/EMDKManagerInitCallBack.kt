@@ -1,4 +1,4 @@
-package com.zebra.nilac.emdkloader.interfaces
+package com.nilac.emdkloader.interfaces
 
 interface EMDKManagerInitCallBack {
     fun onSuccess()

@@ -1,14 +1,14 @@
-package com.zebra.nilac.emdkloadertest
+package com.nilac.emdkloadertest
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.symbol.emdk.EMDKResults
-import com.zebra.nilac.emdkloader.EMDKLoader
-import com.zebra.nilac.emdkloader.ProfileLoader
-import com.zebra.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
-import com.zebra.nilac.emdkloader.interfaces.ProfileLoaderResultCallback
+import com.nilac.emdkloader.EMDKLoader
+import com.nilac.emdkloader.ProfileLoader
+import com.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
+import com.nilac.emdkloader.interfaces.ProfileLoaderResultCallback
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.zebra.nilac.emdkloadertest
+package com.nilac.emdkloadertest
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.zebra.nilac.emdkloader.utils
+package com.nilac.emdkloader.utils
 
 import android.content.Context
 import android.content.pm.PackageManager

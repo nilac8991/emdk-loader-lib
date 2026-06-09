@@ -1,10 +1,10 @@
-package com.zebra.nilac.emdkloader
+package com.nilac.emdkloader
 
 import android.content.Context
 import android.util.Log
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
-import com.zebra.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
+import com.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
