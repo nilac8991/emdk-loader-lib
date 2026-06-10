@@ -4,11 +4,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import com.symbol.emdk.EMDKResults
 import com.nilac.emdkloader.EMDKLoader
 import com.nilac.emdkloader.ProfileLoader
 import com.nilac.emdkloader.interfaces.EMDKManagerInitCallBack
 import com.nilac.emdkloader.interfaces.ProfileLoaderResultCallback
+import com.nilac.emdkloader.models.ProfileError
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,12 +46,8 @@ class MainActivity : AppCompatActivity() {
             "BrightnessCheck",
             null,
             object : ProfileLoaderResultCallback {
-                override fun onProfileLoadFailed(errorObject: EMDKResults) {
-                    //Nothing to see here..
-                }
-
-                override fun onProfileLoadFailed(message: String) {
-                    Log.e(TAG, "Failed to process brightness profile")
+                override fun onProfileLoadFailed(message: String, errors: List<ProfileError>) {
+                    Log.e(TAG, "Failed to process brightness profile: $message")
                     runOnUiThread {
                         Toast.makeText(
                             this@MainActivity,
