@@ -96,6 +96,27 @@ Because the response is parsed, a `CHECK_XML` result that hides a `<parm-error>`
 EMDKLoader.getInstance().release()
 ```
 
+## Migrating from JitPack (1.x)
+
+`2.0.0` moved to Maven Central and includes breaking changes. If you were consuming the library through JitPack:
+
+- **Dependency & repository** — drop the `jitpack.io` repository and swap the coordinate:
+
+  ```diff
+  - implementation 'com.github.nilac8991:emdk-loader-lib:1.1.1'
+  + implementation 'dev.nilac:emdk-loader:2.0.0'
+  ```
+
+- **Package rename** — update your imports from `com.zebra.nilac.emdkloader` to `com.nilac.emdkloader`.
+
+- **Callback change** — `ProfileLoaderResultCallback` now has a single failure method (the `EMDKResults` overload was removed):
+
+  ```diff
+  - override fun onProfileLoadFailed(message: String) { }
+  - override fun onProfileLoadFailed(errorObject: EMDKResults) { }
+  + override fun onProfileLoadFailed(message: String, errors: List<ProfileError>) { }
+  ```
+
 ## Notice
 
 The library only wraps the EMDK — it does not replace it. For how the EMDK and MX profiles actually work, please refer to Zebra's official Documentation on [TechDocs](https://techdocs.zebra.com/emdk-for-android/).
